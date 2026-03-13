@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DSperse: A Framework for Targeted Verification in Zero-Knowledge Machine Learning</title>
+
+  <meta name="description" content="DSperse is a modular framework for distributed machine learning inference with strategic cryptographic verification.">
+  <meta name="keywords" content="DSperse, zero-knowledge, machine learning, zkML, targeted verification, distributed inference">
+
+  <meta property="og:title" content="DSperse: Targeted Verification in Zero-Knowledge ML">
+  <meta property="og:description" content="A modular framework for distributed ML inference with strategic cryptographic verification.">
+  <meta property="og:type" content="website">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="./static/css/index.css">
+</head>
+<body>
+
+<!-- Hero -->
+<section class="hero is-light">
+  <div class="hero-body">
+    <div class="container has-text-centered">
+      <h1 class="title is-2 publication-title">
+        DSperse: A Framework for Targeted Verification in Zero-Knowledge Machine Learning
+      </h1>
+      <div class="is-size-5 publication-authors">
+        <span class="author-block">
+          <a href="mailto:dan@inferencelabs.com">Dan Ivanov</a>,
+        </span>
+        <span class="author-block">
+          <a href="mailto:spencer@inferencelabs.com">Spencer Graham</a>,
+        </span>
+        <span class="author-block">
+          <a href="mailto:shirin@inferencelabs.com">Shirin Shahabi</a>,
+        </span>
+        <span class="author-block">
+          <a href="mailto:tristan@inferencelabs.com">Tristan Freiberg</a>,
+        </span>
+        <span class="author-block">
+          <a href="mailto:jonathan@inferencelabs.com">Jonathan Gold</a>,
+        </span>
+        <span class="author-block">
+          <a href="mailto:haruna@inferencelabs.com">Haruna Isah</a>
+        </span>
+      </div>
+      <div class="is-size-6 publication-authors" style="margin-top: 0.5rem;">
+        <span class="author-block"><strong>Inference Labs Inc.</strong></span>
+      </div>
+      <div class="is-size-6 publication-venue" style="margin-top: 0.5rem;">
+        CVC 2026
+      </div>
+
+      <div class="publication-links" style="margin-top: 1.5rem;">
+        <a class="button is-rounded is-dark" href="http://arxiv.org/abs/2508.06972" target="_blank">
+          <span class="icon"><i class="fas fa-file-pdf"></i></span>
+          <span>arXiv</span>
+        </a>
+        <a class="button is-rounded is-dark" id="pdf-link" href="#" onclick="return false;" style="opacity: 0.5; cursor: not-allowed;">
+          <span class="icon"><i class="fas fa-file-alt"></i></span>
+          <span>PDF (coming soon)</span>
+        </a>
+        <a class="button is-rounded is-dark" href="https://github.com/inference-labs-inc/dsperse" target="_blank">
+          <span class="icon"><i class="fab fa-github"></i></span>
+          <span>Code</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Teaser -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="has-text-centered">
+      <img src="./static/images/DSperseFramework.png" alt="DSperse Framework Architecture" class="framework-img">
+    </div>
+  </div>
+</section>
+
+<!-- Abstract -->
+<section class="section" id="abstract">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Abstract</h2>
+    <div class="content abstract-content">
+      <p>
+        DSperse is a modular framework for distributed machine learning inference with strategic cryptographic verification. Operating within the emerging paradigm of <em>distributed zero-knowledge machine learning</em>, DSperse avoids the high cost and rigidity of full-model circuitization by enabling <em>targeted verification</em> of strategically chosen subcomputations. These verifiable segments, or "slices", may cover part or all of the inference pipeline, with global consistency enforced through audit, replication, or economic incentives. This architecture supports a pragmatic form of <em>trust minimization</em>, localizing zero-knowledge proofs to the components where they provide the greatest value.
+      </p>
+      <p>
+        We evaluate DSperse using multiple proving systems and report empirical results on memory usage, runtime, and circuit behavior under sliced and unsliced configurations. By allowing proof boundaries to align flexibly with the model's logical structure, DSperse supports scalable, targeted verification strategies suited to diverse deployment needs.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Results -->
+<section class="section" id="results" style="background-color: #fafafa;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Results</h2>
+    <div class="content">
+      <p>
+        DSperse extends vertical slicing with spatial decomposition (tiling) of intermediate activations and two-dimensional parallelism across segment and tile dimensions. Below are key empirical results from our evaluation across multiple proving systems and model architectures.
+      </p>
+    </div>
+    <!-- Summary table -->
+    <div style="overflow-x: auto; margin-bottom: 2rem;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 0.95rem;">
+        <thead>
+          <tr style="background: #e8e8e8;">
+            <th style="padding: 0.6rem 0.75rem; border: 1px solid #ddd;">Model</th>
+            <th style="padding: 0.6rem 0.75rem; border: 1px solid #ddd;">Tiles</th>
+            <th style="padding: 0.6rem 0.75rem; border: 1px solid #ddd;">Compile (s)</th>
+            <th style="padding: 0.6rem 0.75rem; border: 1px solid #ddd;">Witness (s)</th>
+            <th style="padding: 0.6rem 0.75rem; border: 1px solid #ddd;">Prove (s)</th>
+            <th style="padding: 0.6rem 0.75rem; border: 1px solid #ddd;">Verify (s)</th>
+            <th style="padding: 0.6rem 0.75rem; border: 1px solid #ddd;">Plain Inf. (ms)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="text-align: center;"><td>ResNet-50</td><td>49</td><td>50</td><td>~7.5</td><td><strong>28.6</strong></td><td><strong>18.4</strong></td><td>31</td></tr>
+          <tr style="text-align: center;"><td>RT-DETRv2</td><td>400</td><td>13</td><td>75.8</td><td><strong>202.1</strong></td><td><strong>143.8</strong></td><td>310</td></tr>
+          <tr style="text-align: center;"><td>YOLOv8</td><td>1,600</td><td>39</td><td>~365</td><td><strong>1,263.6</strong></td><td><strong>991.9</strong></td><td>6,840</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size: 0.85rem; color: #888; margin-top: 0.5rem;">Consumer hardware: MacBook Air M3, 24 GB. Witness at --parallel 8, prove/verify at --parallel 4.</p>
+    </div>
+
+    <div class="results-grid">
+      <div class="result-item">
+        <img src="./static/images/pipeline_comparison.png" alt="Pipeline Comparison">
+        <p>Pipeline comparison: sliced vs. unsliced proving overhead</p>
+      </div>
+      <div class="result-item">
+        <img src="./static/images/pipeline_pertile.png" alt="Per-Tile Pipeline">
+        <p>Per-tile pipeline execution with spatial decomposition</p>
+      </div>
+      <div class="result-item">
+        <img src="./static/images/parallel_scaling.png" alt="Parallel Scaling">
+        <p>Parallel scaling across segment and tile dimensions</p>
+      </div>
+      <div class="result-item">
+        <img src="./static/images/radar_overhead.png" alt="Verification Overhead Radar">
+        <p>Verification overhead across proving systems</p>
+      </div>
+    </div>
+
+    <div class="has-text-centered" style="margin-top: 1.5rem;">
+      <a class="button is-link is-rounded" href="./benchmarks.html">
+        <span class="icon"><i class="fas fa-chart-bar"></i></span>
+        <span>Full Benchmarking Results</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Demo Videos -->
+<section class="section" id="demo">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Demo</h2>
+    <div class="content">
+      <p>
+        DSperse enables targeted verification on real-world vision models. Below are demonstrations of the framework in action, including player detection using YOLOv8 with verifiable inference through DSperse's slice-based architecture.
+      </p>
+    </div>
+    <div class="video-grid">
+      <div class="video-item">
+        <video controls autoplay muted loop playsinline>
+          <source src="./static/videos/playerdetection.mp4" type="video/mp4">
+        </video>
+        <p>YOLOv8 player detection with DSperse verification</p>
+      </div>
+      <div class="video-item">
+        <video controls autoplay muted loop playsinline>
+          <source src="./static/videos/demo1.mp4" type="video/mp4">
+        </video>
+        <p>DSperse framework pipeline execution</p>
+      </div>
+      <div class="video-item">
+        <video controls autoplay muted loop playsinline>
+          <source src="./static/videos/demo2.mp4" type="video/mp4">
+        </video>
+        <p>Distributed inference with targeted verification</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Interactive Demos -->
+<section class="section" id="interactive-demos" style="background-color: #fafafa;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Interactive Demos</h2>
+    <div class="content">
+      <p>
+        Explore DSperse's capabilities through our live interactive demos.
+      </p>
+    </div>
+    <div class="demo-cards">
+      <div class="demo-card">
+        <h3>SN2 Studio &mdash; Player Detection</h3>
+        <p>
+          End-to-end YOLOv8 player detection with ~70% circuit coverage, demonstrating DSperse's targeted verification on a real-world vision model. Explore the circuit breakdown, slice boundaries, and verification results.
+        </p>
+        <a class="button is-link is-rounded" href="https://sn2-studio.inferencelabs.com/circuits" target="_blank">
+          <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+          <span>Launch SN2 Studio</span>
+        </a>
+      </div>
+      <div class="demo-card">
+        <h3>Tiling PoC</h3>
+        <p>
+          Interactive visualization of DSperse's spatial tiling strategy. See how intermediate activations are decomposed into independently provable tiles with overlapping zones of relevancy.
+        </p>
+        <a class="button is-link is-rounded" href="https://tiling-poc.pages.dev/" target="_blank">
+          <span class="icon"><i class="fas fa-external-link-alt"></i></span>
+          <span>Launch Tiling Demo</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Citation -->
+<section class="section" id="citation">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">BibTeX</h2>
+    <div class="bibtex-body">
+<pre>@article{ivanov2025dsperse,
+  title     = {DSperse: A Framework for Targeted Verification in Zero-Knowledge Machine Learning},
+  author    = {Ivanov, Dan and Graham, Spencer and Shahabi, Shirin and Freiberg, Tristan and Gold, Jonathan and Isah, Haruna},
+  journal   = {arXiv preprint arXiv:2508.06972},
+  year      = {2025},
+  url       = {http://arxiv.org/abs/2508.06972}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<!-- Acknowledgements -->
+<section class="section" id="acknowledgements" style="background-color: #fafafa;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3">Acknowledgements</h2>
+    <div class="content">
+      <p>
+        This work was supported by <a href="https://inferencelabs.com" target="_blank">Inference Labs Inc.</a> We thank the developers of JSTprove, EZKL, and the broader zero-knowledge machine learning community for their foundational contributions. The website template is adapted from <a href="https://nerfies.github.io" target="_blank">Nerfies</a>, licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA 4.0</a>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer" style="padding: 1.5rem;">
+  <div class="container">
+    <div class="content has-text-centered">
+      <a class="icon-link" href="http://arxiv.org/abs/2508.06972" target="_blank" title="arXiv">
+        <i class="fas fa-file-pdf"></i>
+      </a>
+      <a class="icon-link" href="https://github.com/inference-labs-inc/dsperse" target="_blank" title="GitHub">
+        <i class="fab fa-github"></i>
+      </a>
+    </div>
+    <div class="content has-text-centered is-size-7">
+      <p>
+        &copy; 2025 Inference Labs Inc. Template from <a href="https://nerfies.github.io">Nerfies</a> (CC BY-SA 4.0).
+      </p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DSperse Benchmarks</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <style>
+    .bench-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.95rem; }
+    .bench-table th, .bench-table td { padding: 0.6rem 0.75rem; border: 1px solid #e0e0e0; text-align: center; }
+    .bench-table th { background: #f5f5f5; font-weight: 600; }
+    .bench-table tr:hover { background: #fafafa; }
+    .bench-section { margin-bottom: 3rem; }
+    .bench-note { font-size: 0.9rem; color: #666; margin-top: 0.5rem; }
+    .highlight-cell { font-weight: 700; color: hsl(204, 86%, 40%); }
+    .back-link { margin-bottom: 1.5rem; }
+    h3.bench-heading { font-size: 1.2rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; border-bottom: 2px solid hsl(204, 86%, 53%); padding-bottom: 0.3rem; display: inline-block; }
+    .obs-list { font-size: 0.95rem; line-height: 1.7; }
+    .obs-list li { margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+<section class="hero is-light is-small">
+  <div class="hero-body">
+    <div class="container has-text-centered">
+      <h1 class="title is-3 publication-title">DSperse Benchmarking Results</h1>
+      <p class="subtitle is-6">Targeted verification benchmarks across ResNet-50, RT-DETRv2, and YOLOv8</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <p class="back-link"><a href="./index.html"><i class="fas fa-arrow-left"></i> Back to project page</a></p>
+
+    <!-- Test Environments -->
+    <div class="bench-section">
+      <h2 class="title is-4">Test Environments</h2>
+      <div class="columns">
+        <div class="column">
+          <h3 class="bench-heading">Consumer Hardware</h3>
+          <table class="bench-table">
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Device</td><td>Apple MacBook Air</td></tr>
+            <tr><td>SoC</td><td>Apple M3 (4P + 4E cores)</td></tr>
+            <tr><td>RAM</td><td>24 GB unified</td></tr>
+            <tr><td>OS</td><td>macOS 14.5</td></tr>
+            <tr><td>Backend</td><td>JSTprove + Expander</td></tr>
+            <tr><td>DSperse</td><td>v3.8.0</td></tr>
+          </table>
+        </div>
+        <div class="column">
+          <h3 class="bench-heading">Server Hardware</h3>
+          <table class="bench-table">
+            <tr><th>Property</th><th>Value</th></tr>
+            <tr><td>Device</td><td>Apple Mac Studio</td></tr>
+            <tr><td>SoC</td><td>Apple M3 Ultra (24 cores)</td></tr>
+            <tr><td>RAM</td><td>512 GB unified</td></tr>
+            <tr><td>Backend</td><td>Expander, non-WAI</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Models Under Test -->
+    <div class="bench-section">
+      <h2 class="title is-4">Models Under Test</h2>
+      <table class="bench-table">
+        <tr><th>Model</th><th>Input Resolution</th><th>Total Slices</th><th>Target Slice</th><th>Kernel</th><th>Channels</th><th>Tile Grid</th><th>Tiles</th></tr>
+        <tr><td>ResNet-50</td><td>224 &times; 224</td><td>49</td><td>slice_0</td><td>7 &times; 7</td><td>3 &rarr; 64</td><td>7 &times; 7</td><td>49</td></tr>
+        <tr><td>RT-DETRv2 r18vd</td><td>640 &times; 640</td><td>478</td><td>slice_2</td><td>3 &times; 3</td><td>3 &rarr; 32</td><td>20 &times; 20</td><td>400</td></tr>
+        <tr><td>YOLOv8 (player det.)</td><td>1280 &times; 1280</td><td>314</td><td>slice_0</td><td>3 &times; 3</td><td>3 &rarr; 80</td><td>40 &times; 40</td><td>1,600</td></tr>
+      </table>
+      <p class="bench-note">Tile budget B = 4096 for all models. Tile spatial size = 32 &times; 32. Halo: h = floor(k<sub>eff</sub> / 2) where k<sub>eff</sub> = (k-1) &middot; d + 1.</p>
+    </div>
+
+    <!-- Tiled vs Untiled Compilation -->
+    <div class="bench-section">
+      <h2 class="title is-4">Circuit Compilation: Untiled vs Tiled</h2>
+      <p>Without spatial decomposition, even the smallest Conv layer in each model exceeds the 180s compilation timeout on consumer hardware. With tiling, all compile successfully.</p>
+      <table class="bench-table">
+        <tr><th>Model</th><th>Untiled</th><th>Tiled Compile (s)</th><th>Tile Input Shape</th><th>R1CS Constraints</th><th>Circuit Bundle</th></tr>
+        <tr><td>ResNet-50</td><td>&gt; 180 s (timeout)</td><td class="highlight-cell">50</td><td>3 &times; 38 &times; 38</td><td>64,262</td><td>16 MB</td></tr>
+        <tr><td>RT-DETRv2</td><td>&gt; 180 s (timeout)</td><td class="highlight-cell">13</td><td>3 &times; 34 &times; 34</td><td>32,773</td><td>3.8 MB</td></tr>
+        <tr><td>YOLOv8</td><td>&gt; 180 s (timeout)</td><td class="highlight-cell">39</td><td>3 &times; 34 &times; 34</td><td>81,925</td><td>11 MB</td></tr>
+      </table>
+    </div>
+
+    <!-- Expander Circuit Statistics -->
+    <div class="bench-section">
+      <h2 class="title is-4">Expander Circuit Statistics</h2>
+      <p>Internal metrics from the Expander compiler that determine downstream prove/verify cost.</p>
+      <table class="bench-table">
+        <tr><th>Model</th><th>Variables</th><th>Additions</th><th>Multiplications</th><th>Total Cost</th></tr>
+        <tr><td>ResNet-50</td><td>1,274,493</td><td>3,566,184</td><td>786,476</td><td>444,846,922</td></tr>
+        <tr><td>RT-DETRv2</td><td>585,007</td><td>843,879</td><td>360,492</td><td>214,346,080</td></tr>
+        <tr><td>YOLOv8</td><td>1,662,269</td><td>2,314,357</td><td>1,065,004</td><td>804,403,594</td></tr>
+      </table>
+      <p class="bench-note">YOLOv8's total cost is 1.81&times; ResNet-50 and 3.75&times; RT-DETRv2, correlating with observed per-tile prove times.</p>
+    </div>
+
+    <!-- Baseline Inference -->
+    <div class="bench-section">
+      <h2 class="title is-4">Baseline Inference (ONNX Runtime, CPU)</h2>
+      <table class="bench-table">
+        <tr><th>Model</th><th>Input Shape</th><th>Mean Inference (ms)</th><th>Peak RAM (MB)</th></tr>
+        <tr><td>ResNet-50</td><td>1 &times; 3 &times; 224 &times; 224</td><td>31</td><td>130</td></tr>
+        <tr><td>RT-DETRv2</td><td>1 &times; 3 &times; 640 &times; 640</td><td>310</td><td>295</td></tr>
+        <tr><td>YOLOv8</td><td>1 &times; 3 &times; 1280 &times; 1280</td><td>6,840</td><td>1,316</td></tr>
+      </table>
+    </div>
+
+    <!-- Consolidated Pipeline -->
+    <div class="bench-section">
+      <h2 class="title is-4">Consolidated Pipeline (Consumer Hardware)</h2>
+      <p>End-to-end results on MacBook Air M3 (24 GB). Witness generation at <code>--parallel 8</code>, prove/verify at <code>--parallel 4</code> (optimal for M3's 4 performance cores).</p>
+      <table class="bench-table">
+        <tr><th>Model</th><th>Tiles</th><th>Compile (s)</th><th>Witness Wall (s)</th><th>Prove Wall (s)</th><th>Verify Wall (s)</th><th>Plain Inf. (ms)</th><th>RAM (MB)</th></tr>
+        <tr>
+          <td>ResNet-50</td><td>49</td>
+          <td>50</td><td>~7.5</td>
+          <td class="highlight-cell">28.6</td><td class="highlight-cell">18.4</td>
+          <td>31</td><td>130</td>
+        </tr>
+        <tr>
+          <td>RT-DETRv2</td><td>400</td>
+          <td>13</td><td>75.8</td>
+          <td class="highlight-cell">202.1</td><td class="highlight-cell">143.8</td>
+          <td>310</td><td>295</td>
+        </tr>
+        <tr>
+          <td>YOLOv8</td><td>1,600</td>
+          <td>39</td><td>~365</td>
+          <td class="highlight-cell">1,263.6</td><td class="highlight-cell">991.9</td>
+          <td>6,840</td><td>1,316</td>
+        </tr>
+      </table>
+
+      <h3 class="bench-heading">Per-Tile Sequential Cost</h3>
+      <table class="bench-table">
+        <tr><th>Model</th><th>Witness (s)</th><th>Prove (s)</th><th>Verify (s)</th><th>Total (s)</th></tr>
+        <tr><td>ResNet-50</td><td>0.99</td><td>2.20</td><td>3.55</td><td>6.74</td></tr>
+        <tr><td>RT-DETRv2</td><td>1.49</td><td>4.02</td><td>2.86</td><td>8.37</td></tr>
+        <tr><td>YOLOv8</td><td>~1.83</td><td>3.16</td><td>2.48</td><td>~7.46</td></tr>
+      </table>
+
+      <h3 class="bench-heading">Per-Tile Artifact Sizes</h3>
+      <table class="bench-table">
+        <tr><th>Model</th><th>witness.bin</th><th>proof.bin</th><th>Run Directory Total</th></tr>
+        <tr><td>ResNet-50</td><td>321 KB</td><td>311 KB</td><td>32 MB</td></tr>
+        <tr><td>RT-DETRv2</td><td>171 KB</td><td>182 KB</td><td>179 MB</td></tr>
+        <tr><td>YOLOv8</td><td>449 KB</td><td>416 KB</td><td>1.4 GB</td></tr>
+      </table>
+    </div>
+
+    <!-- Effective Parallelism -->
+    <div class="bench-section">
+      <h2 class="title is-4">Effective Parallelism</h2>
+      <table class="bench-table">
+        <tr><th>Model</th><th>Stage</th><th>Workers</th><th>Wall (s)</th><th>Tile Sum (s)</th><th>Effective Para.</th><th>Utilization</th></tr>
+        <tr><td>ResNet-50</td><td>Prove</td><td>8</td><td>27.62</td><td>107.62</td><td>3.90&times;</td><td>49%</td></tr>
+        <tr><td>ResNet-50</td><td>Verify</td><td>8</td><td>22.40</td><td>173.98</td><td>7.77&times;</td><td>97%</td></tr>
+        <tr><td>RT-DETRv2</td><td>Prove</td><td>8</td><td>202.08</td><td>1,607.99</td><td>7.96&times;</td><td>99.5%</td></tr>
+        <tr><td>RT-DETRv2</td><td>Verify</td><td>8</td><td>143.75</td><td>1,143.09</td><td>7.95&times;</td><td>99.4%</td></tr>
+        <tr><td>YOLOv8</td><td>Prove</td><td>4</td><td>1,263.55</td><td>5,047.35</td><td>3.99&times;</td><td>99.8%</td></tr>
+        <tr><td>YOLOv8</td><td>Verify</td><td>4</td><td>991.85</td><td>3,959.42</td><td>3.99&times;</td><td>99.8%</td></tr>
+      </table>
+    </div>
+
+    <!-- Parallel Scaling -->
+    <div class="bench-section">
+      <h2 class="title is-4">Parallel Scaling (ResNet-50, 49 tiles)</h2>
+      <div class="has-text-centered" style="margin-bottom: 1.5rem;">
+        <img src="./static/images/parallel_scaling.png" alt="Parallel Scaling" style="max-width: 600px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+      </div>
+
+      <h3 class="bench-heading">Prove Scaling</h3>
+      <table class="bench-table">
+        <tr><th>Workers</th><th>Wall Time (s)</th><th>Speedup</th><th>CPU user (s)</th><th>CPU sys (s)</th><th>CPU %</th></tr>
+        <tr><td>1</td><td>193.0</td><td>1.0&times;</td><td>72.08</td><td>19.53</td><td>47%</td></tr>
+        <tr><td>2</td><td>38.2</td><td>5.1&times;</td><td>59.65</td><td>8.15</td><td>177%</td></tr>
+        <tr><td>4</td><td class="highlight-cell">28.6</td><td class="highlight-cell">6.8&times;</td><td>77.34</td><td>13.31</td><td>317%</td></tr>
+        <tr><td>8</td><td>48.8</td><td>4.0&times;</td><td>84.24</td><td>31.96</td><td>238%</td></tr>
+      </table>
+
+      <h3 class="bench-heading">Verify Scaling</h3>
+      <table class="bench-table">
+        <tr><th>Workers</th><th>Wall Time (s)</th><th>Speedup</th><th>CPU user (s)</th><th>CPU sys (s)</th><th>CPU %</th></tr>
+        <tr><td>1</td><td>41.1</td><td>1.0&times;</td><td>30.82</td><td>5.94</td><td>89%</td></tr>
+        <tr><td>2</td><td>23.9</td><td>1.7&times;</td><td>34.14</td><td>7.16</td><td>172%</td></tr>
+        <tr><td>4</td><td class="highlight-cell">18.4</td><td class="highlight-cell">2.2&times;</td><td>44.24</td><td>11.68</td><td>304%</td></tr>
+        <tr><td>8</td><td>22.4</td><td>1.8&times;</td><td>49.01</td><td>21.38</td><td>313%</td></tr>
+      </table>
+
+      <h3 class="bench-heading">Key Observations</h3>
+      <ul class="obs-list">
+        <li><strong>Optimal parallelism = 4 workers</strong>, matching the M3's 4 performance cores.</li>
+        <li><strong>Super-linear speedup at 2 workers for prove (5.1&times;)</strong>: single-threaded execution is memory-latency-bound (47% CPU utilization); a second thread overlaps memory waits.</li>
+        <li><strong>Degradation at 8 workers</strong>: engaging efficiency cores + thermal throttling on the fanless MacBook Air reduces throughput. System time doubles from 13.3s (p=4) to 32.0s (p=8).</li>
+        <li><strong>Verify is less parallelizable</strong> than prove: max speedup 2.2&times; vs 6.8&times;. Verify has a higher serial fraction.</li>
+      </ul>
+    </div>
+
+    <!-- Full-Model Benchmark -->
+    <div class="bench-section">
+      <h2 class="title is-4">YOLOv8x Full-Model Benchmark (Mac Studio M3 Ultra, 512 GB)</h2>
+      <table class="bench-table">
+        <tr><th>Stage</th><th>Duration</th><th>Detail</th></tr>
+        <tr><td>Compile (cached)</td><td>~2.5 min</td><td>Circuit reuse from prior compilation</td></tr>
+        <tr><td>Witness</td><td>~81 min</td><td>313 slices, 8,398 tiles total</td></tr>
+        <tr><td>Prove</td><td>~36 min</td><td>104 Conv slices, parallel 10</td></tr>
+        <tr><td>Verify</td><td>~31.5 min</td><td>104 Conv slices, parallel 10</td></tr>
+        <tr><td><strong>Total</strong></td><td><strong>~2 h 31 min</strong></td><td></td></tr>
+      </table>
+      <p class="bench-note">104 of 313 slices are Conv layers &mdash; all compiled, proven, and verified. Remaining 209 slices (ReLU, BatchNorm, Add, MaxPool, etc.) executed natively. Deployed commercially at <a href="https://sn2-studio.inferencelabs.com/circuits/player-detection">SN2 Studio Player Detection</a>.</p>
+    </div>
+
+    <!-- Verification Overhead Radar -->
+    <div class="bench-section">
+      <h2 class="title is-4">Verification Overhead Profile</h2>
+      <div class="has-text-centered">
+        <img src="./static/images/radar_overhead.png" alt="Verification Overhead Radar" style="max-width: 550px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+      </div>
+      <p class="bench-note has-text-centered">Normalized cost profile across compile, witness, prove, verify, and RAM dimensions for all three models.</p>
+    </div>
+
+    <!-- Prove/Verify Ratios -->
+    <div class="bench-section">
+      <h2 class="title is-4">Prove/Verify Wall-Time Ratios</h2>
+      <table class="bench-table">
+        <tr><th>Model</th><th>Prove Wall (s)</th><th>Verify Wall (s)</th><th>Verify/Prove</th></tr>
+        <tr><td>ResNet-50</td><td>27.62</td><td>22.40</td><td>0.81</td></tr>
+        <tr><td>RT-DETRv2</td><td>202.08</td><td>143.75</td><td>0.71</td></tr>
+        <tr><td>YOLOv8</td><td>1,263.55</td><td>991.85</td><td>0.79</td></tr>
+      </table>
+      <p class="bench-note">Verification is consistently 20&ndash;30% faster than proving across all models.</p>
+    </div>
+
+    <!-- JSTprove Operator Support -->
+    <div class="bench-section">
+      <h2 class="title is-4">JSTprove Operator Support</h2>
+      <div class="columns">
+        <div class="column is-half">
+          <table class="bench-table">
+            <tr><th>Operator</th><th>Circuitized</th></tr>
+            <tr><td>Conv</td><td style="color: green; font-weight: 700;">Yes</td></tr>
+            <tr><td>Gemm</td><td style="color: green; font-weight: 700;">Yes</td></tr>
+            <tr><td>MatMul</td><td style="color: green; font-weight: 700;">Yes</td></tr>
+          </table>
+        </div>
+        <div class="column is-half">
+          <table class="bench-table">
+            <tr><th>Operator</th><th>Circuitized</th></tr>
+            <tr><td>ReLU, BatchNorm</td><td>Native</td></tr>
+            <tr><td>Add, Sub, Mul, Div</td><td>Native</td></tr>
+            <tr><td>MaxPool, Sigmoid</td><td>Native</td></tr>
+            <tr><td>Reshape, Flatten, etc.</td><td>Native</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer class="footer" style="padding: 1.5rem;">
+  <div class="container">
+    <div class="content has-text-centered is-size-7">
+      <p>&copy; 2025 Inference Labs Inc. | <a href="./index.html">Back to project page</a></p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
